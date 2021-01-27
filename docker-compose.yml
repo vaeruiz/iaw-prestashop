@@ -1,0 +1,58 @@
+version: '3.4'
+
+
+services:
+
+  mysql:
+    image: mysql:5.7
+    ports: 
+      - 3306:3306
+    environment: 
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes: 
+      - mysql_data:/var/lib/mysql
+    networks:
+     - backend-network
+    restart: always
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - 8080:80
+    environment: 
+      - PMA_ARBITRARY=1
+    networks: 
+    - backend-network
+    - frontend-network
+    restart: always
+    depends_on: 
+      - mysql
+
+  prestashop:
+    image: prestashop/prestashop
+    ports: 
+      - 80:80
+    environment: 
+      - DB_SERVER=${DB_SERVER}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - prestashop_data:/var/www/html
+    networks: 
+     - backend-network
+     - frontend-network
+    restart: always
+    depends_on: 
+      - mysql
+
+
+volumes:
+  mysql_data:
+  prestashop_data:
+
+networks: 
+  backend-network:
+  frontend-network:
